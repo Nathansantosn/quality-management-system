@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1065147892162",
+    "project_id": "assessment-software-senai",
+    "storage_bucket": "assessment-software-senai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1065147892162:android:2581cbd10156c35292165b",
+        "android_client_info": {
+          "package_name": "com.example.assessment_software_senai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1065147892162-qcgbsi006pogv0sllhas5qiplbde1q81.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3v6AMo4G1vy_mKG5iNG8fIWHWXTotvok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1065147892162-qcgbsi006pogv0sllhas5qiplbde1q81.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1065147892162-fa8cvo9es0irt5u1iv22u1nadsnme56a.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.assessmentSoftwareSenai"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
