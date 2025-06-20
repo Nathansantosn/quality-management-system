@@ -18,6 +18,11 @@ class SystemService {
 
     final userId = currentUser!.uid;
     //usandoa coleção user passadno o user id no docuemnto vou criar uma coeleção system
+    // await FirebaseFirestore.instance.collection('systems').doc(id).set({
+    //   'name': name,
+    //   'id': id,
+    //   'user': userId,
+    // });
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)

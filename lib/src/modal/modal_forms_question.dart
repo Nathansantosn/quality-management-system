@@ -18,6 +18,24 @@ class _FormsQuestionState extends State<FormsQuestion> {
   String? selectedSubCriterionId;
 
   bool isLoading = false;
+  bool _isCriteriaLoading = false;
+
+  List<QueryDocumentSnapshot>? _systems;
+  List<QueryDocumentSnapshot>? _criteria;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseFirestore.instance.collectionGroup('systems').get().then((
+      snapshot,
+    ) {
+      if (mounted) {
+        setState(() {
+          _systems = snapshot.docs;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,69 +70,81 @@ class _FormsQuestionState extends State<FormsQuestion> {
             child: Column(
               children: [
                 //System
-                FutureBuilder<QuerySnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('user')
-                      .doc(currentUser!.uid)
-                      .collection('systems')
-                      .get(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return CircularProgressIndicator();
-                    final systems = snapshot.data!.docs;
-                    return DropdownButtonFormField(
-                      value: selectedSystemId,
-                      hint: Text(
-                        'Selecione o Sitema',
-                        selectionColor: Colors.white,
-                      ),
-                      items: systems.map((doc) {
-                        return DropdownMenuItem(
+                if (_systems == null)
+                  const CircularProgressIndicator()
+                else
+                  DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    value: selectedSystemId,
+                    hint: const Text(
+                      'Selecione o Sitema',
+                      selectionColor: Colors.white,
+                    ),
+                    items: _systems!.map((doc) {
+                      return DropdownMenuItem<String>(
+                        value: doc.id,
+                        child: Text(doc['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSystemId = value;
+                        selectedCriterionId = null;
+                        selectedSubCriterionId = null;
+                        _criteria = null;
+                        _isCriteriaLoading = value != null;
+                      });
+
+                      if (value != null) {
+                        final selectedSystemDoc = _systems!.firstWhere(
+                          (doc) => doc.id == value,
+                        );
+                        FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(selectedSystemDoc.reference.parent.parent!.id)
+                            .collection('systems')
+                            .doc(selectedSystemDoc.id)
+                            .collection('criterions')
+                            .get()
+                            .then((snapshot) {
+                              if (mounted) {
+                                setState(() {
+                                  _criteria = snapshot.docs;
+                                  _isCriteriaLoading = false;
+                                });
+                              }
+                            });
+                      }
+                    },
+                  ),
+                //critperio
+                if (_isCriteriaLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16.0),
+                    child: CircularProgressIndicator(),
+                  )
+                else if (selectedSystemId != null && _criteria != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      value: selectedCriterionId,
+                      hint: const Text('Selecione o Critério'),
+                      items: _criteria!.map((doc) {
+                        final name = doc['name'] ?? '';
+                        final description = doc['description'] ?? '';
+                        return DropdownMenuItem<String>(
                           value: doc.id,
-                          child: Text(doc['name']),
+                          child: Text('$name \n $description'),
                         );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
-                          selectedSystemId = value;
-                          selectedCriterionId = null;
+                          selectedCriterionId = value;
                           selectedSubCriterionId = null;
                         });
                       },
-                    );
-                  },
-                ),
-                //critperio
-                if (selectedSystemId != null)
-                  FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance
-                        .collection('user')
-                        .doc(currentUser!.uid)
-                        .collection('systems')
-                        .doc(selectedSystemId)
-                        .collection('criterions')
-                        .get(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) return CircularProgressIndicator();
-                      final criterion = snapshot.data!.docs;
-                      return DropdownButtonFormField(
-                        value: selectedCriterionId,
-                        hint: Text('Selecione o Critério'),
-                        items: criterion.map((doc) {
-                          final name = doc['name'] ?? '';
-                          final description = doc['description'] ?? '';
-                          return DropdownMenuItem(
-                            value: doc.id,
-                            child: Text('$name \n $description'),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCriterionId = value;
-                            selectedSubCriterionId = null;
-                          });
-                        },
-                      );
-                    },
+                    ),
                   ),
               ],
             ),
