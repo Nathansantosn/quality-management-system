@@ -8,6 +8,7 @@ showSnackBar({
   SnackBar snackBar = SnackBar(
     content: Text(texto),
     backgroundColor: (isErro) ? Colors.red : Colors.green,
+    behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
     ),

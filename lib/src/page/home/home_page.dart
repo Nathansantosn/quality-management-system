@@ -1,9 +1,8 @@
 import 'package:assessment_software_senai/src/common/my_buldButton.dart';
 import 'package:assessment_software_senai/src/modal/modal_forms_criterion.dart';
 import 'package:assessment_software_senai/src/modal/modal_forms_question.dart';
-import 'package:assessment_software_senai/src/modal/modal_forms_sub_criterion.dart';
 import 'package:assessment_software_senai/src/modal/modal_forms_system.dart';
-import 'package:assessment_software_senai/src/services/authentication_service.dart';
+import 'package:assessment_software_senai/src/utils/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -20,28 +19,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MENU')),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            UserAccountsDrawerHeader(
-              accountName: Text(
-                (widget.user.displayName != null)
-                    ? widget.user.displayName!
-                    : '',
-              ),
-              accountEmail: Text(widget.user.email!),
-              decoration: BoxDecoration(color: Colors.blue[700]),
-            ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: const Text('Deslogar'),
-              onTap: () {
-                AuthenticationService().unlog();
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: AppDrawer(user: widget.user),
       body: Stack(
         children: [
           Container(

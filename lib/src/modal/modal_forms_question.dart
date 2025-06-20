@@ -1,4 +1,3 @@
-import 'package:assessment_software_senai/src/modules/components/get_authentication_input_decoration.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ class FormsQuestion extends StatefulWidget {
 
 class _FormsQuestionState extends State<FormsQuestion> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _questionController = TextEditingController();
   final currentUser = FirebaseAuth.instance.currentUser;
 
   String? selectedSystemId;

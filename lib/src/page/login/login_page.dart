@@ -1,6 +1,8 @@
 import 'package:assessment_software_senai/src/common/my_snackbar.dart';
 import 'package:assessment_software_senai/src/modules/components/get_authentication_input_decoration.dart';
+import 'package:assessment_software_senai/src/page/home/home_page.dart';
 import 'package:assessment_software_senai/src/services/authentication_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -186,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  mainButtonClicked() {
+  mainButtonClicked() async {
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
@@ -195,32 +197,46 @@ class _LoginPageState extends State<LoginPage> {
     if (_formKey.currentState!.validate()) {
       if (queroEntrar) {
         print('Entrada Validada');
-        _authenticationService.loginUser(email: email, password: password).then(
-          (String? erro) {
-            if (erro != null) {
-              showSnackBar(context: context, texto: erro);
-            }
-          },
+        String? erro = await _authenticationService.loginUser(
+          email: email,
+          password: password,
         );
+        if (erro != null) {
+          showSnackBar(context: context, texto: erro);
+        } else {
+          User? user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return HomePage(user: user);
+                },
+              ),
+            );
+          } else {
+            showSnackBar(
+              context: context,
+              texto: "Erro: usuário não encontrado após login.",
+            );
+          }
+        }
       } else {
         print('Cadastro Validado');
         print(
           '${_emailController.text},${_passwordController.text},${_nameController.text},${_positionController.text}},',
         );
-        _authenticationService
-            .registerUser(
-              name: name,
-              email: email,
-              password: password,
-              position: position,
-            )
-            //quando esse cadastro de usuario terminar vamos ver o que ele retornou ,then
-            .then((String? erro) {
-              if (erro != null) {
-                //voltou com erro
-                showSnackBar(context: context, texto: erro);
-              }
-            });
+        String? erro = await _authenticationService.registerUser(
+          name: name,
+          email: email,
+          password: password,
+          position: position,
+        );
+        //quando esse cadastro de usuario terminar vamos ver o que ele retornou ,then
+        if (erro != null) {
+          //voltou com erro
+          showSnackBar(context: context, texto: erro);
+        }
       }
     } else {
       print('Form inválido');

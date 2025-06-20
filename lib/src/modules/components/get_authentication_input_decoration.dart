@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
-InputDecoration getAuthenticationInputDecoration(String label, {Icon? icon}) {
+InputDecoration getAuthenticationInputDecoration(
+  String label, {
+  Icon? icon,
+  IconButton? suffixIcon,
+}) {
   return InputDecoration(
     icon: icon,
     hintText: label,
     fillColor: Colors.white,
     filled: true,
+    suffixIcon: suffixIcon,
     contentPadding: EdgeInsets.fromLTRB(16, 8, 16, 8),
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
     enabledBorder: OutlineInputBorder(

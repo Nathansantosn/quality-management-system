@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide User;
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthenticationService {
   final _firebaseAuth = FirebaseAuth.instance;
@@ -37,15 +37,12 @@ class AuthenticationService {
     required String password,
   }) async {
     try {
-      _firebaseAuth.signInWithEmailAndPassword(
+      await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
       return null; //sucesso
     } on FirebaseAuthException catch (e) {
-      print('Código do erro: ${e.code}');
-      print('Mensagem: ${e.message}');
-
       switch (e.code) {
         case 'user-not-found':
           return 'Usuário não encontrado. Verifique o e-mail.';
@@ -58,7 +55,7 @@ class AuthenticationService {
         case 'too-many-requests':
           return 'Muitas tentativas. Tente novamente mais tarde.';
         default:
-          return 'Erro ao fazer login. Código: ${e.code}';
+          return 'Erro ao fazer login.';
       }
     } catch (e) {
       return 'Erro inesperado: $e';
@@ -67,5 +64,36 @@ class AuthenticationService {
 
   Future<void> unlog() async {
     return _firebaseAuth.signOut();
+  }
+
+  Future<String?> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    User? user = _firebaseAuth.currentUser;
+
+    if (user != null && user.email != null) {
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      try {
+        await user.reauthenticateWithCredential(credential);
+        await user.updatePassword(newPassword);
+        return null;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'wrong-password') {
+          return 'A senha atual está incorreta.';
+        } else if (e.code == 'weak-password') {
+          return 'A nova senha é muito fraca.';
+        } else {
+          return 'Ocorreu um erro ao trocar a senha.';
+        }
+      } catch (e) {
+        return 'Ocorreu um erro inesperado.';
+      }
+    } else {
+      return 'Usuário não autenticado.';
+    }
   }
 }
