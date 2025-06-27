@@ -1,37 +1,40 @@
 import 'package:assessment_software_senai/src/common/dropdown_decoration.dart';
 import 'package:assessment_software_senai/src/common/get_authentication_input_decoration.dart';
-import 'package:assessment_software_senai/src/models/new_questio.dart';
-import 'package:assessment_software_senai/src/services/question_service.dart';
+import 'package:assessment_software_senai/src/models/new_evaluation.dart';
+import 'package:assessment_software_senai/src/services/evaluation_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-class FormsQuestion extends StatefulWidget {
-  const FormsQuestion({super.key});
+class FormsEvaluation extends StatefulWidget {
+  const FormsEvaluation({super.key});
 
   @override
-  State<FormsQuestion> createState() => _FormsQuestionState();
+  State<FormsEvaluation> createState() => _FormsEvaluation();
 }
 
-class _FormsQuestionState extends State<FormsQuestion> {
-  final _formKey = GlobalKey<FormState>();
+class _FormsEvaluation extends State<FormsEvaluation> {
+  final _formkey = GlobalKey<FormState>();
   final userId = FirebaseAuth.instance.currentUser!.uid;
   final currentUser = FirebaseAuth.instance.currentUser;
-  final QuestionService _questionService = QuestionService();
-  final TextEditingController _nameQuestionController = TextEditingController();
-  final TextEditingController _descriptionQuestionController =
+  final EvaluationService _evaluationService = EvaluationService();
+  final TextEditingController _noteAvaluationController =
+      TextEditingController();
+  final TextEditingController _descriptionAvaluationController =
       TextEditingController();
 
   String? selectedSystemId;
   String? selectedCriterionId;
   String? selectedSubCriterionId;
+  String? selectedQuestionId;
 
   bool isLoading = false;
 
   List<QueryDocumentSnapshot>? _systems;
   List<QueryDocumentSnapshot>? _criterions;
   List<QueryDocumentSnapshot>? _subcriterions;
+  List<QueryDocumentSnapshot>? _questions;
 
   @override
   void initState() {
@@ -55,10 +58,10 @@ class _FormsQuestionState extends State<FormsQuestion> {
       child: ListView(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                'Cadastre o Questão!',
+                'Cadastre a Avaliação!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -73,39 +76,36 @@ class _FormsQuestionState extends State<FormsQuestion> {
               ),
             ],
           ),
-
           const SizedBox(height: 20),
           Form(
-            key: _formKey,
+            key: _formkey,
             child: Column(
               children: [
                 TextFormField(
-                  controller: _nameQuestionController,
+                  controller: _noteAvaluationController,
                   decoration: getAuthenticationInputDecoration(
-                    'Nome',
-                    icon: Icon(Icons.abc, color: Colors.white),
+                    'Nota',
+                    icon: const Icon(Icons.star, color: Colors.white),
                   ),
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return 'O Nome não pode ser vazio';
+                      return 'A nota não pode ser vazia';
                     } else {
-                      //deu certo
                       return null;
                     }
                   },
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
-                  controller: _descriptionQuestionController,
+                  controller: _descriptionAvaluationController,
                   decoration: getAuthenticationInputDecoration(
                     'Descrição',
                     icon: Icon(Icons.abc, color: Colors.white),
                   ),
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return 'A descrição não pode ser vazio';
+                      return 'A descrição não pode ser vazia';
                     } else {
-                      //deu certo
                       return null;
                     }
                   },
@@ -121,9 +121,9 @@ class _FormsQuestionState extends State<FormsQuestion> {
                     isExpanded: true,
                     value: selectedSystemId,
                     hint: const Text(
-                      'Selecione o Sitema',
+                      'Selecione o Sistema',
                       selectionColor: Colors.white,
-                      style: TextStyle(color: Colors.black54),
+                      style: TextStyle(color: Colors.black),
                     ),
                     items: _systems!.map((doc) {
                       return DropdownMenuItem<String>(
@@ -136,11 +136,12 @@ class _FormsQuestionState extends State<FormsQuestion> {
                         selectedSystemId = value;
                         selectedCriterionId = null;
                         selectedSubCriterionId = null;
+                        selectedQuestionId = null;
                         _criterions = null;
                         _subcriterions = null;
-                        isLoading = value != null;
+                        _questions = null;
+                        isLoading = true;
                       });
-
                       FirebaseFirestore.instance
                           .collection('users')
                           .doc(userId)
@@ -157,15 +158,10 @@ class _FormsQuestionState extends State<FormsQuestion> {
                     },
                   ),
                 const SizedBox(height: 20),
-                //criterion
-                if (isLoading)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16.0),
-                    child: CircularProgressIndicator(),
-                  )
-                else if (_criterions != null)
+                //Criterion
+                if (_criterions != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+                    padding: const EdgeInsets.only(top: 16),
                     child: DropdownButtonFormField<String>(
                       decoration: dropdownDecoration(),
                       isExpanded: true,
@@ -173,7 +169,6 @@ class _FormsQuestionState extends State<FormsQuestion> {
                       hint: const Text('Selecione o Critério'),
                       items: _criterions!.map((doc) {
                         final name = doc['name'] ?? '';
-
                         return DropdownMenuItem<String>(
                           value: doc.id,
                           child: Text('$name \n'),
@@ -183,10 +178,11 @@ class _FormsQuestionState extends State<FormsQuestion> {
                         setState(() {
                           selectedCriterionId = value;
                           selectedSubCriterionId = null;
+                          selectedQuestionId = null;
                           _subcriterions = null;
+                          _questions = null;
                           isLoading = true;
                         });
-
                         FirebaseFirestore.instance
                             .collection('users')
                             .doc(userId)
@@ -206,6 +202,8 @@ class _FormsQuestionState extends State<FormsQuestion> {
                     ),
                   ),
                 const SizedBox(height: 20),
+
+                //Subcriterion
                 if (_subcriterions != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 16.0),
@@ -224,6 +222,46 @@ class _FormsQuestionState extends State<FormsQuestion> {
                       onChanged: (value) {
                         setState(() {
                           selectedSubCriterionId = value;
+                          selectedQuestionId = null;
+                          _questions = null;
+                          isLoading = true;
+                        });
+                        FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(userId)
+                            .collection('Questions')
+                            .get()
+                            .then((snapshot) {
+                              if (mounted) {
+                                setState(() {
+                                  _questions = snapshot.docs;
+                                  isLoading = false;
+                                });
+                              }
+                            });
+                      },
+                    ),
+                  ),
+                //question
+                const SizedBox(height: 20),
+                if (_questions != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: DropdownButtonFormField<String>(
+                      decoration: dropdownDecoration(),
+                      isExpanded: true,
+                      value: selectedQuestionId,
+                      hint: const Text('Selecione a Questão'),
+                      items: _questions!.map((doc) {
+                        final name = doc['name'] ?? '';
+                        return DropdownMenuItem<String>(
+                          value: doc.id,
+                          child: Text('$name\n'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedQuestionId = value;
                         });
                       },
                     ),
@@ -253,27 +291,32 @@ class _FormsQuestionState extends State<FormsQuestion> {
   }
 
   sendClicked() {
-    setState(() {
-      isLoading = true;
-    });
-
-    String name = _nameQuestionController.text;
-    String description = _descriptionQuestionController.text;
-
-    Question question = Question(
-      id: const Uuid().v1(),
-      name: name,
-      description: description,
-      systemId: selectedSystemId ?? 'Sem sistema',
-      criterionId: selectedCriterionId ?? 'Sem Critério',
-      subCriterionId: selectedSubCriterionId ?? 'Sem Subcritério',
-    );
-
-    _questionService.registerQuestion(question).then((value) {
+    if (_formkey.currentState!.validate()) {
       setState(() {
-        isLoading = false;
+        isLoading = true;
       });
-      Navigator.pop(context);
-    });
+
+      String note = _noteAvaluationController.text;
+      String description = _descriptionAvaluationController.text;
+
+      Evaluation evaluation = Evaluation(
+        id: const Uuid().v1(),
+        note: note,
+        description: description,
+        systemId: selectedSystemId ?? 'Sem Sistema',
+        criterionId: selectedCriterionId ?? 'Sem Critérion',
+        subCriterionId: selectedSubCriterionId ?? 'Sem Subcritérion',
+        questionId: selectedQuestionId ?? 'Sem Questões',
+      );
+
+      _evaluationService.registerEvaluation(evaluation).then((value) {
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.pop(context);
+      });
+    } else {
+      print('Formulário inválido!');
+    }
   }
 }

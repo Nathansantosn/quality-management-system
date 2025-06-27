@@ -1,5 +1,5 @@
 import 'package:assessment_software_senai/src/common/my_snackbar.dart';
-import 'package:assessment_software_senai/src/modules/components/get_authentication_input_decoration.dart';
+import 'package:assessment_software_senai/src/common/get_authentication_input_decoration.dart';
 import 'package:assessment_software_senai/src/services/authentication_service.dart';
 import 'package:assessment_software_senai/src/utils/app_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';

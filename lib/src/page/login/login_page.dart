@@ -1,5 +1,5 @@
 import 'package:assessment_software_senai/src/common/my_snackbar.dart';
-import 'package:assessment_software_senai/src/modules/components/get_authentication_input_decoration.dart';
+import 'package:assessment_software_senai/src/common/get_authentication_input_decoration.dart';
 import 'package:assessment_software_senai/src/page/home/home_page.dart';
 import 'package:assessment_software_senai/src/services/authentication_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -226,6 +226,33 @@ class _LoginPageState extends State<LoginPage> {
         print(
           '${_emailController.text},${_passwordController.text},${_nameController.text},${_positionController.text}},',
         );
+        _authenticationService
+            .registerUser(
+              name: name,
+              email: email,
+              password: password,
+              position: position,
+            )
+            .then((String? erro) {
+              if (erro != null) {
+                //voltou com erro
+                showSnackBar(context: context, texto: erro);
+              } else {
+                //sucesso no cadastro
+                showSnackBar(
+                  context: context,
+                  texto: 'Usuário cadastrado com sucesso!',
+                );
+                //pode redirecionar para a tela de login ou home
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        HomePage(user: FirebaseAuth.instance.currentUser!),
+                  ),
+                );
+              }
+            });
         String? erro = await _authenticationService.registerUser(
           name: name,
           email: email,

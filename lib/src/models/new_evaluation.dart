@@ -1,36 +1,40 @@
-class Question {
+class Evaluation {
   String id;
-  String name;
+  String note;
   String description;
   String systemId;
   String criterionId;
   String subCriterionId;
+  String questionId;
 
-  Question({
+  Evaluation({
     required this.id,
-    required this.name,
+    required this.note,
     required this.description,
     required this.systemId,
     required this.criterionId,
     required this.subCriterionId,
+    required this.questionId,
   });
 
-  Question.fromMap(Map<String, dynamic> map)
+  Evaluation.fromMap(Map<String, dynamic> map)
     : id = map['id'],
-      name = map['name'],
+      note = map['note'],
       description = map['description'],
       systemId = map['systemId'],
       criterionId = map['criterionId'],
-      subCriterionId = map['subCriterionId'];
+      subCriterionId = map['subCriterionId'],
+      questionId = map['questionId'];
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
+      'note': note,
       'description': description,
       'systemId': systemId,
       'criterionId': criterionId,
       'subCriterionId': subCriterionId,
+      'questionId': questionId,
     };
   }
 }

@@ -4,11 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // question não passei com parametros nomeados
 class QuestionService {
-  String user;
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  QuestionService() : user = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> registerQuestion(Question question) async {
     final currentUser = FirebaseAuth.instance.currentUser;
@@ -18,7 +14,7 @@ class QuestionService {
     await _firestore
         .collection('users')
         .doc(userId)
-        .collection('questions')
+        .collection('Questions')
         .doc(question.id)
         .set(question.toMap());
   }

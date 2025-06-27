@@ -1,6 +1,6 @@
 import 'package:assessment_software_senai/src/modal/modal_forms_sub_criterion.dart';
 import 'package:assessment_software_senai/src/models/new_criterion.dart';
-import 'package:assessment_software_senai/src/modules/components/get_authentication_input_decoration.dart';
+import 'package:assessment_software_senai/src/common/get_authentication_input_decoration.dart';
 import 'package:assessment_software_senai/src/services/criteria_service.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -25,7 +25,7 @@ class _FormsCriterionState extends State<FormsCriterion> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(32),
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.8,
       child: ListView(
         children: [
           Row(

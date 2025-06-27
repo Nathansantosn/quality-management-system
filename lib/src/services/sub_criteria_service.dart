@@ -2,11 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SubCriterionService {
-  String user;
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  SubCriterionService() : user = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> registerSubCriterion({
     required String criterionId,
@@ -23,13 +19,14 @@ class SubCriterionService {
         .doc(userId)
         .collection('Criterions')
         .doc(criterionId)
-        .collection('SubCriterion')
+        .collection('Subcriterions')
         .doc(id)
         .set({
           'criterion': criterionId,
           'id': id,
           'name': name,
           'description': description,
+          'user': userId,
         });
   }
 }

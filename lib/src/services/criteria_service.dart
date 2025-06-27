@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class CriterionService {
   String user;
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   CriterionService() : user = FirebaseAuth.instance.currentUser!.uid;
 
   Future<void> registerCriterion({
@@ -17,11 +15,16 @@ class CriterionService {
 
     final userId = currentUser!.uid;
 
-    await _firestore
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('Criterions')
         .doc(id)
-        .set({'id': id, 'name': name, 'description': description});
+        .set({
+          'id': id,
+          'name': name,
+          'description': description,
+          'user': userId,
+        });
   }
 }
