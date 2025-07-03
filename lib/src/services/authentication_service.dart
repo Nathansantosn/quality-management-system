@@ -96,4 +96,15 @@ class AuthenticationService {
       return 'Usuário não autenticado.';
     }
   }
+
+  Future<void> deleteUser(User user) async {
+    return _firebaseAuth.currentUser!
+        .delete()
+        .then((value) {
+          FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+        })
+        .catchError((error) {
+          print("Failed to delete user: $error");
+        });
+  }
 }

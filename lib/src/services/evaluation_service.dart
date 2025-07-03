@@ -22,4 +22,13 @@ class EvaluationService {
         .collection('Evaluations')
         .snapshots();
   }
+
+  Future<void> deleteEvaluation(Evaluation evaluation) async {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('Evaluations')
+        .doc(evaluation.id)
+        .delete();
+  }
 }

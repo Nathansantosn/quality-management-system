@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class FormsQuestion extends StatefulWidget {
-  const FormsQuestion({super.key});
+  final Question? question;
+  const FormsQuestion({super.key, this.question});
 
   @override
   State<FormsQuestion> createState() => _FormsQuestionState();
@@ -45,6 +46,14 @@ class _FormsQuestionState extends State<FormsQuestion> {
         });
       }
     });
+
+    if (widget.question != null) {
+      _nameQuestionController.text = widget.question!.name;
+      _descriptionQuestionController.text = widget.question!.description;
+      selectedSystemId = widget.question!.systemId;
+      selectedCriterionId = widget.question!.criterionId;
+      selectedSubCriterionId = widget.question!.subCriterionId;
+    }
   }
 
   @override
@@ -58,7 +67,9 @@ class _FormsQuestionState extends State<FormsQuestion> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cadastre o Questão!',
+                (widget.question != null)
+                    ? 'Editar Questão'
+                    : 'Cadastre o Questão!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -242,8 +253,8 @@ class _FormsQuestionState extends State<FormsQuestion> {
                     width: 50,
                     child: CircularProgressIndicator(color: Colors.blue),
                   )
-                : const Text(
-                    'Cadastrar',
+                : Text(
+                    (widget.question != null) ? 'Editar' : 'Cadastrar',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
           ),
@@ -268,6 +279,10 @@ class _FormsQuestionState extends State<FormsQuestion> {
       criterionId: selectedCriterionId ?? 'Sem Critério',
       subCriterionId: selectedSubCriterionId ?? 'Sem Subcritério',
     );
+
+    if (widget.question != null) {
+      question.id = widget.question!.id; // Mantém o ID se for edição
+    }
 
     _questionService.registerQuestion(question).then((value) {
       setState(() {

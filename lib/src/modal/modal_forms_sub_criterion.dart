@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class FormsSubCriterion extends StatefulWidget {
-  final String criterionId;
+  final String? criterionId;
+  final SubCriterion? subCriterion;
 
-  const FormsSubCriterion({super.key, required this.criterionId});
+  const FormsSubCriterion({super.key, this.criterionId, this.subCriterion});
 
   @override
   State<FormsSubCriterion> createState() => _FormsSubCriterionState();
@@ -22,7 +23,18 @@ class _FormsSubCriterionState extends State<FormsSubCriterion> {
 
   bool isLoading = false;
 
-  final SubCriterionService _criteriaService = SubCriterionService();
+  final SubCriterionService _SubcriteriaService = SubCriterionService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (widget.subCriterion != null) {
+      _nameSubCriteriaController.text = widget.subCriterion!.name;
+      _descriptionSubCriteriaController.text = widget.subCriterion!.description;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +47,9 @@ class _FormsSubCriterionState extends State<FormsSubCriterion> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Agora cadastre o SubCriterio!',
+                (widget.subCriterion != null)
+                    ? 'Edite o SubCriterio!'
+                    : 'Agora cadastre o SubCriterio!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -108,7 +122,7 @@ class _FormsSubCriterionState extends State<FormsSubCriterion> {
                     width: 50,
                     child: CircularProgressIndicator(color: Colors.blue),
                   )
-                : const Text('Cadastrar'),
+                : Text((widget.subCriterion != null) ? 'Editar' : 'Cadastrar'),
           ),
         ],
       ),
@@ -129,18 +143,20 @@ class _FormsSubCriterionState extends State<FormsSubCriterion> {
       description: description,
     );
 
-    _criteriaService
-        .registerSubCriterion(
-          criterionId: widget.criterionId,
-          id: subCriterion.id,
-          name: subCriterion.name,
-          description: subCriterion.description,
-        )
-        .then((value) {
-          setState(() {
-            isLoading = false;
-          });
-          Navigator.pop(context);
-        });
+    if (widget.subCriterion != null) {
+      subCriterion.id = widget.subCriterion!.id;
+    }
+
+    _SubcriteriaService.registerSubCriterion(
+      criterionId: widget.criterionId ?? '',
+      id: subCriterion.id,
+      name: subCriterion.name,
+      description: subCriterion.description,
+    ).then((value) {
+      setState(() {
+        isLoading = false;
+      });
+      Navigator.pop(context);
+    });
   }
 }

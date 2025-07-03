@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class FormsSystem extends StatefulWidget {
-  const FormsSystem({super.key});
+  final System? system;
+  const FormsSystem({super.key, this.system});
 
   @override
   State<FormsSystem> createState() => _FormsSystemState();
@@ -20,6 +21,16 @@ class _FormsSystemState extends State<FormsSystem> {
   final SystemService _systemService = SystemService();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (widget.system != null) {
+      _nameSystemController.text = widget.system!.name;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(32),
@@ -30,7 +41,9 @@ class _FormsSystemState extends State<FormsSystem> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cadastre o nome do sistema!',
+                (widget.system != null)
+                    ? 'Editar Sistema'
+                    : 'Cadastre o nome do sistema!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -84,7 +97,7 @@ class _FormsSystemState extends State<FormsSystem> {
                     height: 16,
                     child: CircularProgressIndicator(color: Colors.blue),
                   )
-                : const Text('Cadastrar'),
+                : Text((widget.system != null) ? 'Editar' : 'Cadastrar'),
           ),
         ],
       ),
@@ -99,6 +112,10 @@ class _FormsSystemState extends State<FormsSystem> {
     String name = _nameSystemController.text;
 
     System system = System(id: const Uuid().v1(), name: name);
+
+    if (widget.system != null) {
+      system.id = widget.system!.id;
+    }
 
     _systemService.registerSystem(name: system.name, id: system.id).then((
       value,

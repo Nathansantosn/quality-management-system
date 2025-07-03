@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class FormsEvaluation extends StatefulWidget {
-  const FormsEvaluation({super.key});
+  final Evaluation? evaluation;
+  const FormsEvaluation({super.key, this.evaluation});
 
   @override
   State<FormsEvaluation> createState() => _FormsEvaluation();
@@ -48,6 +49,15 @@ class _FormsEvaluation extends State<FormsEvaluation> {
         });
       }
     });
+
+    if (widget.evaluation != null) {
+      _noteAvaluationController.text = widget.evaluation!.note;
+      _descriptionAvaluationController.text = widget.evaluation!.description;
+      selectedSystemId = widget.evaluation!.systemId;
+      selectedCriterionId = widget.evaluation!.criterionId;
+      selectedSubCriterionId = widget.evaluation!.subCriterionId;
+      selectedQuestionId = widget.evaluation!.questionId;
+    }
   }
 
   @override
@@ -61,7 +71,9 @@ class _FormsEvaluation extends State<FormsEvaluation> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                'Cadastre a Avaliação!',
+                (widget.evaluation != null)
+                    ? 'Editar Avaliação'
+                    : 'Cadastre a Avaliação!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -280,8 +292,8 @@ class _FormsEvaluation extends State<FormsEvaluation> {
                     width: 50,
                     child: CircularProgressIndicator(color: Colors.blue),
                   )
-                : const Text(
-                    'Cadastrar',
+                : Text(
+                    (widget.evaluation != null) ? 'Atualizar' : 'Cadastrar',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
           ),
@@ -308,6 +320,10 @@ class _FormsEvaluation extends State<FormsEvaluation> {
         subCriterionId: selectedSubCriterionId ?? 'Sem Subcritérion',
         questionId: selectedQuestionId ?? 'Sem Questões',
       );
+
+      if (widget.evaluation != null) {
+        evaluation.id = widget.evaluation!.id;
+      }
 
       _evaluationService.registerEvaluation(evaluation).then((value) {
         setState(() {

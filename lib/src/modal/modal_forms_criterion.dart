@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 class FormsCriterion extends StatefulWidget {
-  const FormsCriterion({super.key});
+  final Criterion? criterion;
+  const FormsCriterion({super.key, this.criterion});
 
   @override
   State<FormsCriterion> createState() => _FormsCriterionState();
@@ -21,6 +22,18 @@ class _FormsCriterionState extends State<FormsCriterion> {
   bool isLoading = false;
 
   final CriterionService _criteriaService = CriterionService();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (widget.criterion != null) {
+      _nameCriteriaController.text = widget.criterion!.name;
+      _descriptionCriteriaController.text = widget.criterion!.description;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -32,7 +45,9 @@ class _FormsCriterionState extends State<FormsCriterion> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Cadastre o Criterio!',
+                (widget.criterion != null)
+                    ? 'Editar Criterio!'
+                    : 'Cadastre o Criterio!',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -105,7 +120,7 @@ class _FormsCriterionState extends State<FormsCriterion> {
                     width: 50,
                     child: CircularProgressIndicator(color: Colors.blue),
                   )
-                : const Text('Cadastrar'),
+                : Text((widget.criterion != null) ? 'Editar' : 'Cadastrar'),
           ),
         ],
       ),
@@ -126,6 +141,10 @@ class _FormsCriterionState extends State<FormsCriterion> {
       description: description,
     );
 
+    if (widget.criterion != null) {
+      criterion.id = widget.criterion!.id;
+    }
+
     _criteriaService
         .registerCriterion(
           id: criterion.id,
@@ -136,7 +155,7 @@ class _FormsCriterionState extends State<FormsCriterion> {
           setState(() {
             isLoading = false;
           });
-          Navigator.pop(context);
+          Navigator.pop(context, criterion.id);
           showModalBottomSheet(
             context: context,
             builder: (context) => FormsSubCriterion(criterionId: criterion.id),
